@@ -4,25 +4,20 @@ Created on Sat Mar 21 09:48:40 2020
 
 @author: bergs
 """
-
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
-import statistics
 import imageio
 import os
 
 # from scipy import stats
-# import urllib.request
-# import math
-# import seaborn as sns
 
 file_name_it = "https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-andamento-nazionale/dpc-covid19-ita-andamento-nazionale.csv"
 file_name_regions = "https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-regioni/dpc-covid19-ita-regioni.csv"
 DataFrame = pd.read_csv(file_name_it)
 DataFrame_regions = pd.read_csv(file_name_regions)
 
-def plot(x, y, title, x_label, y_label, plot_x_size, plot_y_size, legend, figname):
+def plot(x, y, title, x_label, y_label, plot_x_size, plot_y_size, legend, figname, y_max=None):
     plt.figure(figsize=(plot_x_size, plot_y_size))
     plt.title(title)
     plt.xlabel(x_label)
@@ -31,25 +26,33 @@ def plot(x, y, title, x_label, y_label, plot_x_size, plot_y_size, legend, fignam
     plt.grid()
     plt.plot(x, y, marker='o', label=str(legend))
     plt.legend(legend, loc="upper left", ncol=2, title="Legend", fancybox=True)
+    plt.ylim(ymax=y_max)
     plt.savefig(figname)
     plt.show()
     return
 
+#Analisi nazionali
+    
+#Analisi regionali
+
+
+# Plot nazionali
 for column in DataFrame:
     if column == "data":
         continue
     elif column == "stato":
         continue
     else:
+        plot_x_size = 16
+        plot_y_size = 10
         x = DataFrame.data
         y = DataFrame[column]
         x_label = "Data"
-        y_label = column
-        plot_x_size = 16
-        plot_y_size = 10
+        y_label = "Persone"
+        legend = column
         figname = str(column+".jpg")
         title = str(column).replace("_"," ")
-        plot(x, y, title, x_label, y_label, plot_x_size, plot_y_size, figname)
+        plot(x, y, title, x_label, y_label, plot_x_size, plot_y_size, legend, figname)
         continue
 
 # Tasso di decessi percentuale
@@ -74,18 +77,11 @@ plot(x, y, title, x_label, y_label, plot_x_size, plot_y_size, legend, figname)
 x = DataFrame.data
 y = DataFrame.tamponi/DataFrame.totale_attualmente_positivi
 x_label = "Data"
-<<<<<<< HEAD
-y_label = "Tamponi diviso Tot. attualmente positivi"
-figname = str(y_label+".jpg")
-title = y_label
-plot(x, y, title, x_label, y_label, plot_x_size, plot_y_size, figname)
-=======
 y_label = title = legend = "Tamponi_Tot. attualmente positivi"
-figname = str(title+".jpg")
+figname = str(y_label+".jpg")
 plot(x, y, title, x_label, y_label, plot_x_size, plot_y_size, legend, figname)
 
 #fare i plot in ciclo for per tutte le liste come si deve
->>>>>>> 696d01ec849e027f435d7382f9ddb09d476256af
 
 # Regional Analysis
 # Costruzione delle variabili
@@ -126,39 +122,22 @@ plt.savefig("Variazione gironaliera dei positivi.jpg")
 
 #Tasso di crescita giornaliero MA
 ma_days=3
-<<<<<<< HEAD
-y = moving_average = ratio_positivi.expanding(min_periods=ma_days).mean()
-plt.figure(figsize=(plot_x_size, plot_y_size))
-plt.title("Tasso di crescita giornaliero MA "+str(ma_days)+" days")
-plt.xlabel("Data")
-plt.ylabel("Persone")
-plt.xticks(rotation=45)
-plt.grid()
-plt.legend(regions)
-plt.plot(dates, moving_average, marker='o')
-plt.ylim(ymax=2.5)
-plt.legend(moving_average.columns.values, loc="upper left", ncol=2, title="Legend", fancybox=True)
-plt.savefig("Tasso di crescita giornaliero MA "+str(ma_days)+" days.jpg")
-plt.show()
-=======
 x = dates
 y = moving_average = ratio_positivi.expanding(min_periods=ma_days).mean()
 title = "Tasso di crescita giornaliero MA "+str(ma_days)+" days"
 x_label = "Data"
-y_label = "Persone"
+y_label = "Tasso di crescita giornaliero: positivi al giorno n+1 / positivi al giorno n"
 legend = moving_average.columns.values
 figname = "Tasso di crescita giornaliero MA "+str(ma_days)+" days.jpg"
-plot(x, y, title, x_label, y_label, plot_x_size, plot_y_size, legend, figname)
->>>>>>> 696d01ec849e027f435d7382f9ddb09d476256af
+y_max = 2
+plot(x, y, title, x_label, y_label, plot_x_size, plot_y_size, legend, figname, y_max)
 
 # Tasso di crescita giornaliero per regioni
 ma_days=1
 for i in range(1,7):
     date=dates[len(dates)-i]
     last_moving_average_crescita_giornaliera=moving_average[:].iloc[len(dates)-i]
-    # TODO wrong mean
-    #mean=statistics.mean(last_moving_average_crescita_giornaliera)
-    #mean = DataFrame.totale_casi[:].iloc[-(len(dates)-i-1)]/DataFrame.totale_casi[:].iloc[-(len(dates)-i)]
+    mean = DataFrame.totale_casi.shift(0)[:].iloc[-i]/DataFrame.totale_casi.shift(1)[:].iloc[-i]
     plt.figure(figsize=(plot_x_size*1.5, plot_y_size))
     plt.title("Ultimo tasso di crescita giornaliero al "+date)
     plt.xlabel("Regione")
@@ -166,8 +145,8 @@ for i in range(1,7):
     plt.xticks(rotation=45)
     y_pos=np.arange(len(regions))
     plt.bar(regions, last_moving_average_crescita_giornaliera.T.reset_index().iloc[:,1])
-    #plt.hlines(mean, linestyle='dashed', colors='red', label='Average', xmin='Abruzzo', xmax='Veneto')
-    #plt.hlines(1, linestyle='dashed', colors='black', label='Target', xmin='Abruzzo', xmax='Veneto')
+    plt.hlines(mean, linestyle='dashed', colors='red', label='Average', xmin='Abruzzo', xmax='Veneto')
+    plt.hlines(1, linestyle='dashed', colors='black', label='Target', xmin='Abruzzo', xmax='Veneto')
     plt.legend(loc="upper left", title="Legend", fancybox=True)
     plt.ylim(ymax=1.75)
     date=date.replace(":",".")
