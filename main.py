@@ -22,15 +22,15 @@ file_name_regions = "https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/d
 DataFrame = pd.read_csv(file_name_it)
 DataFrame_regions = pd.read_csv(file_name_regions)
 
-def plot(x, y, title, x_label, y_label, plot_x_size, plot_y_size, figname):
+def plot(x, y, title, x_label, y_label, plot_x_size, plot_y_size, legend, figname):
     plt.figure(figsize=(plot_x_size, plot_y_size))
     plt.title(title)
     plt.xlabel(x_label)
     plt.ylabel(y_label)
     plt.xticks(rotation=45)
     plt.grid()
-    plt.plot(x, y, marker='o', label=str(y_label))
-    plt.legend(loc="upper left", ncol=2, title="Legend", fancybox=True)
+    plt.plot(x, y, marker='o', label=str(legend))
+    plt.legend(legend, loc="upper left", ncol=2, title="Legend", fancybox=True)
     plt.savefig(figname)
     plt.show()
     return
@@ -56,33 +56,29 @@ for column in DataFrame:
 x = DataFrame.data
 y = tasso_decessi = DataFrame.deceduti/DataFrame.totale_casi*100
 x_label = "Data"
-y_label = "Tasso decessi percentuale"
-figname = str(y_label+".jpg")
-title = y_label
-plot(x, y, title, x_label, y_label, plot_x_size, plot_y_size, figname)
+y_label = title = legend = "Tasso decessi percentuale"
+figname = str(title+".jpg")
+plot(x, y, title, x_label, y_label, plot_x_size, plot_y_size, legend, figname)
 
 #Pazienti positivi in piu al giorno
 DataFrame['d_totale_casi'] = DataFrame["totale_casi"].diff(1)
-z = DataFrame.data
+x = DataFrame.data
 y = DataFrame.d_totale_casi
-plt.figure(figsize=(plot_x_size, plot_y_size))
-plt.title("Casi positivi giornalieri")
-plt.xlabel("Data")
-plt.ylabel("Persone")
-plt.bar(x, y, label="Casi positivi giornalieri")
-plt.legend(loc="upper left", title="Legend", fancybox=True)
-plt.xticks(rotation=45)
-plt.savefig("Casi positivi giornalieri.jpg")
-plt.show()
+legend = title = y_label = "Casi positivi giornalieri"
+x_label = "Data"
+y_label = "Persone"
+figname = "Casi positivi giornalieri.jpg"
+plot(x, y, title, x_label, y_label, plot_x_size, plot_y_size, legend, figname)
 
 # Tamponi / Totale Attualmente Positivi
 x = DataFrame.data
 y = DataFrame.tamponi/DataFrame.totale_attualmente_positivi
 x_label = "Data"
-y_label = "Tamponi:Tot. attualmente positivi"
-figname = str(y_label+".jpg")
-title = y_label
-plot(x, y, title, x_label, y_label, plot_x_size, plot_y_size, figname)
+y_label = title = legend = "Tamponi_Tot. attualmente positivi"
+figname = str(title+".jpg")
+plot(x, y, title, x_label, y_label, plot_x_size, plot_y_size, legend, figname)
+
+#fare i plot in ciclo for per tutte le liste come si deve
 
 # Regional Analysis
 # Costruzione delle variabili
@@ -120,23 +116,17 @@ for region in regions:
     plt.plot(dates, rate_positivi[region], marker='o',  label=str(region))
     plt.legend(loc="upper left", ncol=2, title="Legend", fancybox=True)
 plt.savefig("Variazione gironaliera dei positivi.jpg")
-plt.show()
 
 #Tasso di crescita giornaliero MA
 ma_days=3
-plt.figure(figsize=(plot_x_size, plot_y_size))
-plt.title("Tasso di crescita giornaliero MA "+str(ma_days)+" days")
-plt.xlabel("Data")
-plt.ylabel("Persone")
-plt.xticks(rotation=45)
-plt.grid()
-plt.legend(regions)
-moving_average = ratio_positivi.expanding(min_periods=ma_days).mean()
-plt.plot(dates, moving_average, marker='o')
-plt.ylim(ymax=2.5)
-plt.legend(moving_average.columns.values, loc="upper left", ncol=2, title="Legend", fancybox=True)
-plt.savefig("Tasso di crescita giornaliero MA "+str(ma_days)+" days.jpg")
-plt.show()
+x = dates
+y = moving_average = ratio_positivi.expanding(min_periods=ma_days).mean()
+title = "Tasso di crescita giornaliero MA "+str(ma_days)+" days"
+x_label = "Data"
+y_label = "Persone"
+legend = moving_average.columns.values
+figname = "Tasso di crescita giornaliero MA "+str(ma_days)+" days.jpg"
+plot(x, y, title, x_label, y_label, plot_x_size, plot_y_size, legend, figname)
 
 # Tasso di crescita giornaliero per regioni
 ma_days=1
@@ -159,7 +149,6 @@ for i in range(1,7):
     plt.ylim(ymax=1.75)
     date=date.replace(":",".")
     plt.savefig("Ultimo tasso di crescita giornaliero al "+date+".jpg")
-    plt.show()
 
 # Tasso di crescita regionali GIF
 images = []
