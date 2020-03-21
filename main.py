@@ -79,7 +79,7 @@ plt.show()
 x = DataFrame.data
 y = DataFrame.tamponi/DataFrame.totale_attualmente_positivi
 x_label = "Data"
-y_label = "Tamponi:Tot. attualmente positivi"
+y_label = "Tamponi diviso Tot. attualmente positivi"
 figname = str(y_label+".jpg")
 title = y_label
 plot(x, y, title, x_label, y_label, plot_x_size, plot_y_size, figname)
@@ -124,6 +124,7 @@ plt.show()
 
 #Tasso di crescita giornaliero MA
 ma_days=3
+y = moving_average = ratio_positivi.expanding(min_periods=ma_days).mean()
 plt.figure(figsize=(plot_x_size, plot_y_size))
 plt.title("Tasso di crescita giornaliero MA "+str(ma_days)+" days")
 plt.xlabel("Data")
@@ -131,7 +132,6 @@ plt.ylabel("Persone")
 plt.xticks(rotation=45)
 plt.grid()
 plt.legend(regions)
-moving_average = ratio_positivi.expanding(min_periods=ma_days).mean()
 plt.plot(dates, moving_average, marker='o')
 plt.ylim(ymax=2.5)
 plt.legend(moving_average.columns.values, loc="upper left", ncol=2, title="Legend", fancybox=True)
