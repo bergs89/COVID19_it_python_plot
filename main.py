@@ -51,10 +51,12 @@ for column in DataFrame:
 
 DataFrame.tamponi/DataFrame.totale_casi
 DataFrame.deceduti/DataFrame.totale_casi
+
+# Tamponi / Totale Attualmente Positivi
 x = DataFrame.data
 y = DataFrame.tamponi/DataFrame.totale_attualmente_positivi
 x_label = "Data"
-y_label = "Tamponi/Tot. attualmente positivi"
-figname = y_label
+y_label = "Tamponi:Tot. attualmente positivi"
+figname = str(y_label+".jpg")
 title = y_label
 plot(x, y, title, x_label, y_label, plot_x_size, plot_y_size, figname)
