@@ -52,11 +52,28 @@ for column in DataFrame:
         plot(x, y, title, x_label, y_label, plot_x_size, plot_y_size, figname)
         continue
 
+# Tasso di decessi percentuale
+x = DataFrame.data
+y = tasso_decessi = DataFrame.deceduti/DataFrame.totale_casi*100
+x_label = "Data"
+y_label = "Tasso decessi percentuale"
+figname = str(y_label+".jpg")
+title = y_label
+plot(x, y, title, x_label, y_label, plot_x_size, plot_y_size, figname)
 
-
-
-DataFrame.tamponi/DataFrame.totale_casi
-DataFrame.deceduti/DataFrame.totale_casi
+#Pazienti positivi in piu al giorno
+DataFrame['d_totale_casi'] = DataFrame["totale_casi"].diff(1)
+z = DataFrame.data
+y = DataFrame.d_totale_casi
+plt.figure(figsize=(plot_x_size, plot_y_size))
+plt.title("Casi positivi giornalieri")
+plt.xlabel("Data")
+plt.ylabel("Persone")
+plt.bar(x, y, label="Casi positivi giornalieri")
+plt.legend(loc="upper left", title="Legend", fancybox=True)
+plt.xticks(rotation=45)
+plt.savefig("Casi positivi giornalieri.jpg")
+plt.show()
 
 # Tamponi / Totale Attualmente Positivi
 x = DataFrame.data
@@ -68,7 +85,7 @@ title = y_label
 plot(x, y, title, x_label, y_label, plot_x_size, plot_y_size, figname)
 
 # Regional Analysis
-#Costruzione delle variabili
+# Costruzione delle variabili
 regions=DataFrame_regions.denominazione_regione.unique()
 x=DataFrame_regions.denominazione_regione
 y=DataFrame_regions.totale_casi
@@ -92,6 +109,20 @@ for region in regions:
 plot_x_size = 16
 plot_y_size = 10
 
+#Variazione giornaliera positivi
+plt.figure(figsize=(plot_x_size, plot_y_size))
+plt.title("Variazione gironaliera dei positivi")
+plt.xlabel("Data")
+plt.ylabel("Persone")
+plt.xticks(rotation=45)
+plt.grid()
+for region in regions:
+    plt.plot(dates, rate_positivi[region], marker='o',  label=str(region))
+    plt.legend(loc="upper left", ncol=2, title="Legend", fancybox=True)
+plt.savefig("Variazione gironaliera dei positivi.jpg")
+plt.show()
+
+#Tasso di crescita giornaliero MA
 ma_days=3
 plt.figure(figsize=(plot_x_size, plot_y_size))
 plt.title("Tasso di crescita giornaliero MA "+str(ma_days)+" days")
@@ -107,6 +138,7 @@ plt.legend(moving_average.columns.values, loc="upper left", ncol=2, title="Legen
 plt.savefig("Tasso di crescita giornaliero MA "+str(ma_days)+" days.jpg")
 plt.show()
 
+# Tasso di crescita giornaliero per regioni
 ma_days=1
 for i in range(1,7):
     date=dates[len(dates)-i]
