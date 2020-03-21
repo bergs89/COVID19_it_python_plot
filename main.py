@@ -17,7 +17,7 @@ file_name_regions = "https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/d
 DataFrame = pd.read_csv(file_name_it)
 DataFrame_regions = pd.read_csv(file_name_regions)
 
-def plot(x, y, title, x_label, y_label, plot_x_size, plot_y_size, legend, figname, y_max=None):
+def plot(x, y, title, x_label, y_label, plot_x_size, plot_y_size, legend, figname, y_max=None, y_min=None):
     plt.figure(figsize=(plot_x_size, plot_y_size))
     plt.title(title)
     plt.xlabel(x_label)
@@ -26,7 +26,7 @@ def plot(x, y, title, x_label, y_label, plot_x_size, plot_y_size, legend, fignam
     plt.grid()
     plt.plot(x, y, marker='o', label=str(legend))
     plt.legend(legend, loc="upper left", ncol=2, title="Legend", fancybox=True)
-    plt.ylim(ymax=y_max)
+    plt.ylim(ymax=y_max, ymin=y_min)
     plt.savefig(figname)
     plt.show()
     return
@@ -77,7 +77,7 @@ plot(x, y, title, x_label, y_label, plot_x_size, plot_y_size, legend, figname)
 x = DataFrame.data
 y = DataFrame.tamponi/DataFrame.totale_attualmente_positivi
 x_label = "Data"
-y_label = title = legend = "Tamponi_Tot. attualmente positivi"
+y_label = title = legend = "Tamponi diviso Tot. attualmente positivi"
 figname = str(y_label+".jpg")
 plot(x, y, title, x_label, y_label, plot_x_size, plot_y_size, legend, figname)
 
@@ -120,26 +120,71 @@ for region in regions:
     plt.legend(loc="upper left", ncol=2, title="Legend", fancybox=True)
 plt.savefig("Variazione gironaliera dei positivi.jpg")
 
-#Tasso di crescita giornaliero MA
-ma_days=3
+#Tasso di crescita giornaliero 
+ma_days=0
 x = dates
-y = moving_average = ratio_positivi.expanding(min_periods=ma_days).mean()
+# TODO media mobile non mi piace, falsa molto la realta
+y = ratio_positivi
 title = "Tasso di crescita giornaliero MA "+str(ma_days)+" days"
 x_label = "Data"
 y_label = "Tasso di crescita giornaliero: positivi al giorno n+1 / positivi al giorno n"
+legend = ratio_positivi.columns.values
+figname = "Tasso di crescita giornaliero.jpg"
+y_max = 3
+y_min = 1
+plot(x, y, title, x_label, y_label, plot_x_size, plot_y_size, legend, figname, y_max, y_min)
+
+#Tasso di crescita giornaliero w/ expansion
+ma_days=2
+x = dates
+# TODO media mobile non mi piace, falsa molto la realta
+y = moving_average = ratio_positivi.expanding(min_periods=ma_days).mean()
+title = "Tasso di crescita giornaliero using expansion"
+x_label = "Data"
+y_label = "Tasso di crescita giornaliero: positivi al giorno n+1 / positivi al giorno n, with expansion"
 legend = moving_average.columns.values
-figname = "Tasso di crescita giornaliero MA "+str(ma_days)+" days.jpg"
-y_max = 2
+figname = "Tasso di crescita giornaliero with expansion.jpg"
+y_max = 3
 plot(x, y, title, x_label, y_label, plot_x_size, plot_y_size, legend, figname, y_max)
 
 # Tasso di crescita giornaliero per regioni
 ma_days=1
+# Tasso di crescita giornaliero per regioni w/expansion
 for i in range(1,7):
     date=dates[len(dates)-i]
-    last_moving_average_crescita_giornaliera=moving_average[:].iloc[len(dates)-i]
+    # TODO media mobile non mi piace, falsa molto la realta
+    y = ratio_positivi[:].iloc[len(dates)-i]
     mean = DataFrame.totale_casi.shift(0)[:].iloc[-i]/DataFrame.totale_casi.shift(1)[:].iloc[-i]
     plt.figure(figsize=(plot_x_size*1.5, plot_y_size))
     plt.title("Ultimo tasso di crescita giornaliero al "+date)
+    plt.xlabel("Regione")
+    plt.ylabel("Coefficiente giornaliero")
+    plt.xticks(rotation=45)
+    y_pos=np.arange(len(regions))
+    plt.bar(regions, y)
+    plt.hlines(mean, linestyle='dashed', colors='red', label='Average', xmin='Abruzzo', xmax='Veneto')
+    plt.hlines(1, linestyle='dashed', colors='black', label='Target', xmin='Abruzzo', xmax='Veneto')
+    plt.legend(loc="upper left", title="Legend", fancybox=True)
+    plt.ylim(ymax=1.75)
+    date=date.replace(":",".")
+    plt.savefig("Ultimo tasso di crescita giornaliero al "+date+" .jpg")
+
+images = []
+files = [f for f in os.listdir('.') if os.path.isfile(f)]
+for file in files:
+    if file.startswith("Ultimo tasso di crescita giornaliero") & file.endswith(" .jpg"):
+        images.append(imageio.imread(file))
+imageio.mimsave('./Tassi di crescita giornalieri.gif', images, duration = 1)
+
+# Tasso di crescita giornaliero per regioni
+ma_days=1
+# Tasso di crescita giornaliero per regioni non filtrato
+for i in range(1,7):
+    date=dates[len(dates)-i]
+    y = last_moving_average_crescita_giornaliera=moving_average[:].iloc[len(dates)-i]
+    mean = DataFrame.totale_casi.shift(0)[:].iloc[-i]/DataFrame.totale_casi.shift(1)[:].iloc[-i]
+    plt.figure(figsize=(plot_x_size*1.5, plot_y_size))
+    plt.title("Ultimo tasso di crescita giornaliero al "+date+" w/ expansion average")
     plt.xlabel("Regione")
     plt.ylabel("Coefficiente giornaliero")
     plt.xticks(rotation=45)
@@ -150,12 +195,12 @@ for i in range(1,7):
     plt.legend(loc="upper left", title="Legend", fancybox=True)
     plt.ylim(ymax=1.75)
     date=date.replace(":",".")
-    plt.savefig("Ultimo tasso di crescita giornaliero al "+date+".jpg")
+    plt.savefig("Ultimo tasso di crescita giornaliero al "+date+" with expansion average.jpg")
 
 # Tasso di crescita regionali GIF
 images = []
 files = [f for f in os.listdir('.') if os.path.isfile(f)]
 for file in files:
-    if file.startswith("Ultimo tasso di crescita giornaliero") & file.endswith(".jpg"):
+    if file.startswith("Ultimo tasso di crescita giornaliero") & file.endswith(" with expansion average.jpg"):
         images.append(imageio.imread(file))
-imageio.mimsave('./Tassi di crescita giornalieri.gif', images, duration = 0.5)
+imageio.mimsave('./Tassi di crescita giornalieri with expansion.gif', images, duration = 0.7)
