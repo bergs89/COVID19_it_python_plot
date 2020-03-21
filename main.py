@@ -25,16 +25,11 @@ def plot(x, y, title, x_label, y_label, plot_x_size, plot_y_size, legend, fignam
     plt.xticks(rotation=45)
     plt.grid()
     plt.plot(x, y, marker='o', label=str(legend))
-    plt.legend(legend, loc="upper left", ncol=2, title="Legend", fancybox=True)
+    plt.legend(loc="upper left", ncol=2, title="Legend", fancybox=True)
     plt.ylim(ymax=y_max, ymin=y_min)
     plt.savefig(figname)
     plt.show()
     return
-
-#Analisi nazionali
-    
-#Analisi regionali
-
 
 # Plot nazionali
 for column in DataFrame:
@@ -55,33 +50,19 @@ for column in DataFrame:
         plot(x, y, title, x_label, y_label, plot_x_size, plot_y_size, legend, figname)
         continue
 
-# Tasso di decessi percentuale
-x = DataFrame.data
-y = tasso_decessi = DataFrame.deceduti/DataFrame.totale_casi*100
-x_label = "Data"
-y_label = title = legend = "Tasso decessi percentuale"
-figname = str(title+".jpg")
-plot(x, y, title, x_label, y_label, plot_x_size, plot_y_size, legend, figname)
-
-#Pazienti positivi in piu al giorno
-DataFrame['d_totale_casi'] = DataFrame["totale_casi"].diff(1)
-x = DataFrame.data
-y = DataFrame.d_totale_casi
-legend = title = y_label = "Casi positivi giornalieri"
-x_label = "Data"
-y_label = "Persone"
-figname = "Casi positivi giornalieri.jpg"
-plot(x, y, title, x_label, y_label, plot_x_size, plot_y_size, legend, figname)
-
-# Tamponi / Totale Attualmente Positivi
-x = DataFrame.data
-y = DataFrame.tamponi/DataFrame.totale_attualmente_positivi
-x_label = "Data"
-y_label = title = legend = "Tamponi diviso Tot. attualmente positivi"
-figname = str(y_label+".jpg")
-plot(x, y, title, x_label, y_label, plot_x_size, plot_y_size, legend, figname)
-
-#fare i plot in ciclo for per tutte le liste come si deve
+# 1_Tasso di decessi percentuale
+# 2_Pazienti positivi in piu al giorno
+# 3_Tamponi / Totale Attualmente Positivi
+# 4_Guariti diviso nuovi attualmente positivi
+x = [DataFrame.data, DataFrame.data, DataFrame.data, DataFrame.data]
+y = [DataFrame.deceduti/DataFrame.totale_casi*100, DataFrame.d_totale_casi, DataFrame.tamponi/DataFrame.totale_attualmente_positivi, DataFrame.dimessi_guariti/DataFrame.nuovi_attualmente_positivi]
+x_label = ["Data", "Data", "Data", "Data"]
+y_label = ["Tasso decessi percentuale", "Casi positivi giornalieri", "Tamponi diviso Tot. attualmente positivi", "Guariti diviso nuovi attualmente positivi"]
+title = ["Tasso decessi percentuale", "Casi positivi giornalieri", "Tamponi diviso Tot. attualmente positivi", "Guariti diviso nuovi attualmente positivi"]
+legend = ["Tasso decessi percentuale", "Casi positivi giornalieri", "Tamponi diviso Tot. attualmente positivi", "Guariti diviso nuovi attualmente positivi"]
+figname = [str(title[0]+".jpg"), str(title[1]+".jpg"), str(title[2]+".jpg"), str(title[3]+".jpg")]
+for i in range(0,len(x)):
+    plot(x[i], y[i], title[i], x_label[i], y_label[i], plot_x_size, plot_y_size, legend[i], figname[i])
 
 # Regional Analysis
 # Costruzione delle variabili
