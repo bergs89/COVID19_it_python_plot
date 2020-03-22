@@ -49,13 +49,18 @@ for column in DataFrame:
         title = str(column).replace("_"," ")
         plot(x, y, title, x_label, y_label, plot_x_size, plot_y_size, legend, figname)
         continue
+               
+# Picture setup
+plot_x_size = 16
+plot_y_size = 10
 
 # 1_Tasso di decessi percentuale
 # 2_Pazienti positivi in piu al giorno
 # 3_Tamponi / Totale Attualmente Positivi
 # 4_Guariti diviso nuovi attualmente positivi
+
 x = [DataFrame.data, DataFrame.data, DataFrame.data, DataFrame.data]
-y = [DataFrame.deceduti/DataFrame.totale_casi*100, DataFrame.d_totale_casi, DataFrame.tamponi/DataFrame.totale_attualmente_positivi, DataFrame.dimessi_guariti/DataFrame.nuovi_attualmente_positivi]
+y = [DataFrame.deceduti/DataFrame.totale_casi*100, DataFrame.nuovi_attualmente_positivi, DataFrame.tamponi/DataFrame.totale_attualmente_positivi, DataFrame.dimessi_guariti/DataFrame.nuovi_attualmente_positivi]
 x_label = ["Data", "Data", "Data", "Data"]
 y_label = ["Tasso decessi percentuale", "Casi positivi giornalieri", "Tamponi diviso Tot. attualmente positivi", "Guariti diviso nuovi attualmente positivi"]
 title = ["Tasso decessi percentuale", "Casi positivi giornalieri", "Tamponi diviso Tot. attualmente positivi", "Guariti diviso nuovi attualmente positivi"]
@@ -84,10 +89,6 @@ for region in regions:
     column_tmp2 = DataFrame_regions.loc[DataFrame_regions['denominazione_regione'] == region, 'deceduti']
     column_tmp2 = column_tmp2.reset_index()
     deceduti[region] = column_tmp2.deceduti
-       
-# Picture setup
-plot_x_size = 16
-plot_y_size = 10
 
 #Variazione giornaliera positivi
 plt.figure(figsize=(plot_x_size, plot_y_size))
