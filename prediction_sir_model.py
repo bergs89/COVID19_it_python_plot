@@ -37,7 +37,7 @@ def SIR_model(I0, R0, N, beta, gamma, t_max=len(DataFrame.data)):
     S, I, R = ret.T
     return S, I, R, t
 
-def calibration(N_min, N_max, N_jump, max_error, beta_min=0.15, beta_max=0.375, gamma_den_min=4, gamma_den_max=14):
+def calibration(N_min, N_max, N_jump, max_error, beta_min=0.15, beta_max=0.375, gamma_den_min=7, gamma_den_max=14):
     #result = pd.DataFrame(columns=['N', 'beta', 'gamma_den', 'R0', 'error_avg'])
     list = []
     for N in range(N_min, N_max, N_jump):
@@ -82,12 +82,12 @@ def plt_SIR_model(t, S, I, R, tempo_misurati, positivi_misurati):
 
 calibration_flag = 1
 #Parameters for calibration
-N_min, N_max, N_jump, max_error, beta_max = 155000, 165000, 2500, 0.14, 0.5
+N_min, N_max, N_jump, max_error = 175000, 200000, 2500, 0.14
 I0 = 229
 R0 = 0
 # Calibration
 if calibration_flag == 1:
-    result = calibration(N_min, N_max, N_jump, max_error, beta_max=0.75)
+    result = calibration(N_min, N_max, N_jump, max_error, beta_max=0.375)
     index_min_error = result.error_positivi_avg.idxmin()
     N, beta, gamma_den, Rknot, err_positivi, err_guariti = result.iloc[index_min_error]
     print(result.iloc[index_min_error])

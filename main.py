@@ -50,6 +50,8 @@ for column in DataFrame:
         plot(x, y, title, x_label, y_label, plot_x_size, plot_y_size, legend, figname)
         continue
                
+    
+# PLOTS
 # Picture setup
 plot_x_size = 16
 plot_y_size = 10
@@ -103,23 +105,20 @@ for region in regions:
 plt.savefig("Variazione gironaliera dei positivi.jpg")
 
 #Tasso di crescita giornaliero 
-ma_days=0
 x = dates
-# TODO media mobile non mi piace, falsa molto la realta
 y = ratio_positivi
-title = "Tasso di crescita giornaliero MA "+str(ma_days)+" days"
+title = "Tasso di crescita giornaliero"
 x_label = "Data"
 y_label = "Tasso di crescita giornaliero: positivi al giorno n+1 / positivi al giorno n"
 legend = ratio_positivi.columns.values
 figname = "Tasso di crescita giornaliero.jpg"
 y_max = 3
-y_min = 1
+y_min = 0.5
 plot(x, y, title, x_label, y_label, plot_x_size, plot_y_size, legend, figname, y_max, y_min)
 
 #Tasso di crescita giornaliero w/ expansion
 ma_days=2
 x = dates
-# TODO media mobile non mi piace, falsa molto la realta
 y = moving_average = ratio_positivi.expanding(min_periods=ma_days).mean()
 title = "Tasso di crescita giornaliero using expansion"
 x_label = "Data"
