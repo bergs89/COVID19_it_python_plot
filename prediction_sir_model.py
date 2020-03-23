@@ -37,14 +37,14 @@ def SIR_model(I0, R0, N, beta, gamma, t_max=len(DataFrame.data)):
     S, I, R = ret.T
     return S, I, R, t
 
-def calibration(N_min, N_max, N_jump, max_error, beta_min=0.15, beta_max=0.375, gamma_den_min=7, gamma_den_max=14):
+def calibration(N_min, N_max, N_jump, max_error, beta_min=0.15, beta_max=0.4, gamma_den_min=5, gamma_den_max=14):
     #result = pd.DataFrame(columns=['N', 'beta', 'gamma_den', 'R0', 'error_avg'])
     list = []
     for N in range(N_min, N_max, N_jump):
         situazione_calcolo = (N-N_min) / (N_max-N_min)
         print("Calcolo al: "+str(round(situazione_calcolo*100, 2))+"%")
-        for beta in np.arange(beta_min, beta_max, 0.005):
-            for gamma_den in np.arange(gamma_den_min, gamma_den_max, 0.2):
+        for beta in np.arange(beta_min, beta_max, 0.0025):
+            for gamma_den in np.arange(gamma_den_min, gamma_den_max, 0.1):
                 gamma = 1 / gamma_den
                 S, I, R, t = SIR_model(I0, R0, N, beta, gamma)
                 positivi_misurati = DataFrame.totale_attualmente_positivi
@@ -82,7 +82,7 @@ def plt_SIR_model(t, S, I, R, tempo_misurati, positivi_misurati):
 
 calibration_flag = 1
 #Parameters for calibration
-N_min, N_max, N_jump, max_error = 175000, 200000, 2500, 0.14
+N_min, N_max, N_jump, max_error = 210000, 250000, 2500, 0.2
 I0 = 229
 R0 = 0
 # Calibration
@@ -91,6 +91,7 @@ if calibration_flag == 1:
     index_min_error = result.error_positivi_avg.idxmin()
     N, beta, gamma_den, Rknot, err_positivi, err_guariti = result.iloc[index_min_error]
     print(result.iloc[index_min_error])
+print("Calcolo al: 100%")
 S, I, R, t  = SIR_model(I0, R0, 160000, 0.345, 1/9, t_max = 120)
 S, I, R, t  = SIR_model(I0, R0, N, beta, 1/gamma_den, t_max = 120)
 #Plot
