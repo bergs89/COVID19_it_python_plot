@@ -82,7 +82,7 @@ def plt_SIR_model(t, S, I, R, tempo_misurati, positivi_misurati):
 
 calibration_flag = 1
 #Parameters for calibration
-N_min, N_max, N_jump, max_error = 210000, 250000, 2500, 0.2
+N_min, N_max, N_jump, max_error = 220000, 250000, 2500, 0.2
 I0 = 229
 R0 = 0
 # Calibration
