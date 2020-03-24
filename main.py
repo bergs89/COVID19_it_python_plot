@@ -185,3 +185,36 @@ for file in files:
     if file.startswith("Ultimo tasso di crescita giornaliero") & file.endswith(" with expansion average.jpg"):
         images.append(imageio.imread(file))
 imageio.mimsave('./Tassi di crescita giornalieri with expansion.gif', images, duration = 0.7)
+
+list_region_nord = []
+list_region_centro = []
+list_region_sud = []
+df=DataFrame_regions
+df_nord=pd.DataFrame()
+df_centro=pd.DataFrame()
+df_sud=pd.DataFrame()
+
+for region in regions:
+    if region in ["Abruzzo", "Toscana", "Marche", "Umbria", "Lazio", "Molise"]:
+        df_centro[region] = df[df['denominazione_regione'].str.contains(str(region))].totale_casi.reset_index().totale_casi
+    if region in ["Basilicata", "Campania", "Puglia", "Calabria", "Sicilia", "Sardegna"]:      
+        df_sud[region]=df_centro[region] = df[df['denominazione_regione'].str.contains(str(region))].totale_casi.reset_index().totale_casi
+    if region in ["Liguria", "Piemonte", "Valle d'Aosta", "Lombardia", "P.A. Trento", "Friuli Venezia Giulia", "Veneto", "P.A. Bolzano", "Emilia Romagna"]:
+        df_nord[region]=df_centro[region] = df[df['denominazione_regione'].str.contains(str(region))].totale_casi.reset_index().totale_casi
+ 
+df_centro2=pd.DataFrame()
+df_centro2=df_centro.sum(axis=1)-df_nord.sum(axis=1)-df_sud.sum(axis=1)
+df_sud2=df_sud.sum(axis=1)
+df_nord2=df_nord.sum(axis=1)
+
+for i in range(0,len(df_sud2)-1):
+    a=df_sud2.iloc[i+1]/df_sud2.iloc[i]
+    print(a)
+
+for i in range(0,len(df_nord2)-1):
+    a=df_nord2.iloc[i+1]/df_nord2.iloc[i]
+    print(a)
+    
+for i in range(0,len(df_centro2)-1):
+    a=df_centro2.iloc[i+1]/df_centro2.iloc[i]
+    print(a)
