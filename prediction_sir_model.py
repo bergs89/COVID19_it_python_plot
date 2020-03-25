@@ -82,17 +82,16 @@ def plt_SIR_model(t, S, I, R, tempo_misurati, positivi_misurati):
 
 calibration_flag = 1
 #Parameters for calibration
-N_min, N_max, N_jump, max_error = 220000, 250000, 2500, 0.2
+N_min, N_max, N_jump, max_error = 275000, 300000, 5000, 0.2
 I0 = 229
 R0 = 0
 # Calibration
 if calibration_flag == 1:
-    result = calibration(N_min, N_max, N_jump, max_error, beta_max=0.375)
+    result = calibration(N_min, N_max, N_jump, max_error, beta_max=0.5)
     index_min_error = result.error_positivi_avg.idxmin()
     N, beta, gamma_den, Rknot, err_positivi, err_guariti = result.iloc[index_min_error]
     print(result.iloc[index_min_error])
 print("Calcolo al: 100%")
-S, I, R, t  = SIR_model(I0, R0, 160000, 0.345, 1/9, t_max = 120)
 S, I, R, t  = SIR_model(I0, R0, N, beta, 1/gamma_den, t_max = 120)
 #Plot
 positivi_misurati = DataFrame.totale_attualmente_positivi

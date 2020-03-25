@@ -28,7 +28,19 @@ def plot(x, y, title, x_label, y_label, plot_x_size, plot_y_size, legend, fignam
     plt.legend(loc="upper left", ncol=2, title="Legend", fancybox=True)
     plt.ylim(ymax=y_max, ymin=y_min)
     plt.savefig(figname)
-    plt.show()
+    return
+
+def bar(x, y, title, x_label, y_label, plot_x_size, plot_y_size, legend, figname, y_max=None, y_min=None):
+    plt.figure(figsize=(plot_x_size, plot_y_size))
+    plt.title(title)
+    plt.xlabel(x_label)
+    plt.ylabel(y_label)
+    plt.xticks(rotation=45)
+    plt.grid()
+    plt.bar(x, y, label=str(legend))
+    plt.legend(loc="upper left", ncol=2, title="Legend", fancybox=True)
+    plt.ylim(ymax=y_max, ymin=y_min)
+    plt.savefig(figname)
     return
 
 # Plot nazionali
@@ -37,6 +49,10 @@ for column in DataFrame:
         continue
     elif column == "stato":
         continue
+    elif column == "note_it":
+        continue
+    elif column == "note_en":
+        continue    
     else:
         plot_x_size = 16
         plot_y_size = 10
@@ -47,12 +63,14 @@ for column in DataFrame:
         legend = column
         figname = str(column+".jpg")
         title = str(column).replace("_"," ")
-        plot(x, y, title, x_label, y_label, plot_x_size, plot_y_size, legend, figname)
+        if column == "nuovi_attualmente_positivi":
+            bar(x, y, title, x_label, y_label, plot_x_size, plot_y_size, legend, figname)
+        else:
+            plot(x, y, title, x_label, y_label, plot_x_size, plot_y_size, legend, figname)
         continue
-               
-    
+
 # PLOTS
-# Picture setup
+# Picture setup<
 plot_x_size = 16
 plot_y_size = 10
 
@@ -157,64 +175,51 @@ for file in files:
         images.append(imageio.imread(file))
 imageio.mimsave('./Tassi di crescita giornalieri.gif', images, duration = 1)
 
-# Tasso di crescita giornaliero per regioni
-ma_days=1
-# Tasso di crescita giornaliero per regioni non filtrato
-for i in range(1,7):
-    date=dates[len(dates)-i]
-    y = last_moving_average_crescita_giornaliera=moving_average[:].iloc[len(dates)-i]
-    mean = DataFrame.totale_casi.shift(0)[:].iloc[-i]/DataFrame.totale_casi.shift(1)[:].iloc[-i]
-    plt.figure(figsize=(plot_x_size*1.5, plot_y_size))
-    plt.title("Ultimo tasso di crescita giornaliero al "+date+" w/ expansion average")
-    plt.xlabel("Regione")
-    plt.ylabel("Coefficiente giornaliero")
-    plt.xticks(rotation=45)
-    y_pos=np.arange(len(regions))
-    plt.bar(regions, last_moving_average_crescita_giornaliera.T.reset_index().iloc[:,1])
-    plt.hlines(mean, linestyle='dashed', colors='red', label='Average', xmin='Abruzzo', xmax='Veneto')
-    plt.hlines(1, linestyle='dashed', colors='black', label='Target', xmin='Abruzzo', xmax='Veneto')
-    plt.legend(loc="upper left", title="Legend", fancybox=True)
-    plt.ylim(ymax=1.75)
-    date=date.replace(":",".")
-    plt.savefig("Ultimo tasso di crescita giornaliero al "+date+" with expansion average.jpg")
 
-# Tasso di crescita regionali GIF
-images = []
-files = [f for f in os.listdir('.') if os.path.isfile(f)]
-for file in files:
-    if file.startswith("Ultimo tasso di crescita giornaliero") & file.endswith(" with expansion average.jpg"):
-        images.append(imageio.imread(file))
-imageio.mimsave('./Tassi di crescita giornalieri with expansion.gif', images, duration = 0.7)
+def analisi_CNS(DataFrame, DataFrame_regions):
+    # Analisi Centro Nord Sud
+    # Estarzione dati
+    df=DataFrame_regions
+    df_nord=pd.DataFrame()
+    df_centro=pd.DataFrame()
+    df_sud=pd.DataFrame()
 
-list_region_nord = []
-list_region_centro = []
-list_region_sud = []
-df=DataFrame_regions
-df_nord=pd.DataFrame()
-df_centro=pd.DataFrame()
-df_sud=pd.DataFrame()
-
-for region in regions:
-    if region in ["Abruzzo", "Toscana", "Marche", "Umbria", "Lazio", "Molise"]:
-        df_centro[region] = df[df['denominazione_regione'].str.contains(str(region))].totale_casi.reset_index().totale_casi
-    if region in ["Basilicata", "Campania", "Puglia", "Calabria", "Sicilia", "Sardegna"]:      
-        df_sud[region]=df_centro[region] = df[df['denominazione_regione'].str.contains(str(region))].totale_casi.reset_index().totale_casi
-    if region in ["Liguria", "Piemonte", "Valle d'Aosta", "Lombardia", "P.A. Trento", "Friuli Venezia Giulia", "Veneto", "P.A. Bolzano", "Emilia Romagna"]:
-        df_nord[region]=df_centro[region] = df[df['denominazione_regione'].str.contains(str(region))].totale_casi.reset_index().totale_casi
+    for region in regions:
+        if region in ["Abruzzo", "Toscana", "Marche", "Umbria", "Lazio", "Molise"]:
+            df_centro[region] = df[df['denominazione_regione'].str.contains(str(region))].totale_casi.reset_index().totale_casi
+        if region in ["Basilicata", "Campania", "Puglia", "Calabria", "Sicilia", "Sardegna"]:      
+            df_sud[region]=df_centro[region] = df[df['denominazione_regione'].str.contains(str(region))].totale_casi.reset_index().totale_casi
+        if region in ["Liguria", "Piemonte", "Valle d'Aosta", "Lombardia", "P.A. Trento", "Friuli Venezia Giulia", "Veneto", "P.A. Bolzano", "Emilia Romagna"]:
+            df_nord[region]=df_centro[region] = df[df['denominazione_regione'].str.contains(str(region))].totale_casi.reset_index().totale_casi
  
-df_centro2=pd.DataFrame()
-df_centro2=df_centro.sum(axis=1)-df_nord.sum(axis=1)-df_sud.sum(axis=1)
-df_sud2=df_sud.sum(axis=1)
-df_nord2=df_nord.sum(axis=1)
+    centro_totale_positivi=pd.DataFrame()
+    centro_totale_positivi=df_centro.sum(axis=1)-df_nord.sum(axis=1)-df_sud.sum(axis=1)
+    sud_totale_positivi=df_sud.sum(axis=1)
+    nord_totale_positivi=df_nord.sum(axis=1)
+        
+    for region in regions:
+        if region in ["Abruzzo", "Toscana", "Marche", "Umbria", "Lazio", "Molise"]:
+            df_centro[region] = df[df['denominazione_regione'].str.contains(str(region))].nuovi_attualmente_positivi.reset_index().nuovi_attualmente_positivi
+        if region in ["Basilicata", "Campania", "Puglia", "Calabria", "Sicilia", "Sardegna"]:      
+            df_sud[region]=df_centro[region] = df[df['denominazione_regione'].str.contains(str(region))].nuovi_attualmente_positivi.reset_index().nuovi_attualmente_positivi
+        if region in ["Liguria", "Piemonte", "Valle d'Aosta", "Lombardia", "P.A. Trento", "Friuli Venezia Giulia", "Veneto", "P.A. Bolzano", "Emilia Romagna"]:
+            df_nord[region]=df_centro[region] = df[df['denominazione_regione'].str.contains(str(region))].nuovi_attualmente_positivi.reset_index().nuovi_attualmente_positivi
+ 
+    centro_nuovi_positivi=pd.DataFrame()
+    centro_nuovi_positivi=df_centro.sum(axis=1)-df_nord.sum(axis=1)-df_sud.sum(axis=1)
+    sud_nuovi_positivi=df_sud.sum(axis=1)
+    nord_nuovi_positivi=df_nord.sum(axis=1)
+    return nord_totale_positivi, centro_totale_positivi, sud_totale_positivi, nord_nuovi_positivi, centro_nuovi_positivi, sud_nuovi_positivi
 
-for i in range(0,len(df_sud2)-1):
-    a=df_sud2.iloc[i+1]/df_sud2.iloc[i]
-    print(a)
+nord_totale_positivi, centro_totale_positivi, sud_totale_positivi, nord_nuovi_positivi, centro_nuovi_positivi, sud_nuovi_positivi = analisi_CNS(DataFrame, DataFrame_regions)
+# Plot analisi Italia Nord Centro Sud
+x = [dates, dates, dates, dates, dates, dates]
+y = [nord_totale_positivi, centro_totale_positivi, sud_totale_positivi, nord_nuovi_positivi, centro_nuovi_positivi, sud_nuovi_positivi]
+x_label = ["Data", "Data", "Data", "Data",  "Data", "Data"]
+y_label = ["Persone", "Persone", "Persone", "Persone", "Persone", "Persone"]
+title = ["Totale positivi al Nord", "Totale positivi al Centro", "Totale positivi al Sud", "Nuovi positivi al Nord", "Nuovi positivi al Centro",  "Nuovi positivi al Sud", ]
+legend = ["Totale positivi al Nord", "Totale positivi al Centro", "Totale positivi al Sud", "Nuovi positivi al Nord", "Nuovi positivi al Centro",  "Nuovi positivi al Sud", ]
+figname = [str(title[0]+".jpg"), str(title[1]+".jpg"), str(title[2]+".jpg"), str(title[3]+".jpg"),  str(title[4]+".jpg"),  str(title[5]+".jpg")]
+for i in range(0,len(x)):
+    bar(x[i], y[i], title[i], x_label[i], y_label[i], plot_x_size, plot_y_size, legend[i], figname[i])
 
-for i in range(0,len(df_nord2)-1):
-    a=df_nord2.iloc[i+1]/df_nord2.iloc[i]
-    print(a)
-    
-for i in range(0,len(df_centro2)-1):
-    a=df_centro2.iloc[i+1]/df_centro2.iloc[i]
-    print(a)
