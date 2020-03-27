@@ -37,10 +37,10 @@ def SIR_model(I0, R0, N, beta, gamma, t_max=len(DataFrame.data)):
     S, I, R = ret.T
     return S, I, R, t
 
-def calibration(N_min, N_max, N_jump, max_error, beta_min=0.15, beta_max=0.4, gamma_den_min=5, gamma_den_max=14):
+def calibration(N_min, N_max, N_jump, max_error, beta_min=0.15, beta_max=0.4, gamma_den_min=1, gamma_den_max=14):
     #result = pd.DataFrame(columns=['N', 'beta', 'gamma_den', 'R0', 'error_avg'])
-    list = []
     for N in range(N_min, N_max, N_jump):
+        list = []
         situazione_calcolo = (N-N_min) / (N_max-N_min)
         print("Calcolo al: "+str(round(situazione_calcolo*100, 2))+"%")
         for beta in np.arange(beta_min, beta_max, 0.0025):
@@ -56,10 +56,17 @@ def calibration(N_min, N_max, N_jump, max_error, beta_min=0.15, beta_max=0.4, ga
                 if abs(error_positivi_avg) < max_error:
                     #print(N, beta, gamma_den, beta/gamma, error_positivi_avg, error_guariti_avg)
                     list.append([N, beta, gamma_den, beta/gamma, error_positivi_avg, error_guariti_avg])  
-    result = pd.DataFrame(list, columns = ["N", "beta", "gamms_den", "R0", "error_positivi_avg", "error_guariti_avg"])
+        result = pd.DataFrame(list, columns = ["N", "beta", "gamms_den", "R0", "error_positivi_avg", "error_guariti_avg"])
+        index_min_error = result.error_positivi_avg.idxmin()
+        N, beta, gamma_den, Rknot, err_positivi, err_guariti = result.iloc[index_min_error]
+        print(result.iloc[index_min_error])
+        S, I, R, t  = SIR_model(I0, R0, N, beta, 1/gamma_den, t_max = 120)
+        positivi_misurati = DataFrame.totale_attualmente_positivi
+        tempo_misurati = range(0,len(DataFrame.data))
+        plt_SIR_model(t, S, I, R, tempo_misurati, positivi_misurati, N, beta, gamma_den, Rknot, err_positivi)
     return result
 
-def plt_SIR_model(t, S, I, R, tempo_misurati, positivi_misurati):
+def plt_SIR_model(t, S, I, R, tempo_misurati, positivi_misurati, N, beta, gamma_den, R0, err_positivi):
     # Plot the data on three separate curves for S(t), I(t) and R(t)
     fig = plt.figure(facecolor='w', figsize=(16,10))
     ax = fig.add_subplot(111, axisbelow=True)
@@ -78,16 +85,17 @@ def plt_SIR_model(t, S, I, R, tempo_misurati, positivi_misurati):
     legend.get_frame().set_alpha(0.5)
     for spine in ('top', 'right', 'bottom', 'left'):
         ax.spines[spine].set_visible(False)
-    plt.savefig("PredictionSIR.jpg")
+    filename=str('PredictionSIR N'+str(round(N))+', beta'+str(round(beta,5))+', gamma_den'+str(round(gamma_den,3))+', RO'+str(round(R0,3))+', error'+str(round(err_positivi,4))+'.jpg')
+    plt.savefig(filename)
 
 calibration_flag = 1
 #Parameters for calibration
-N_min, N_max, N_jump, max_error = 275000, 300000, 5000, 0.2
+N_min, N_max, N_jump, max_error = 360000, 600000, 5000, 0.3
 I0 = 229
 R0 = 0
 # Calibration
 if calibration_flag == 1:
-    result = calibration(N_min, N_max, N_jump, max_error, beta_max=0.5)
+    result = calibration(N_min, N_max, N_jump, max_error, beta_max=0.45)
     index_min_error = result.error_positivi_avg.idxmin()
     N, beta, gamma_den, Rknot, err_positivi, err_guariti = result.iloc[index_min_error]
     print(result.iloc[index_min_error])
