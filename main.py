@@ -134,17 +134,17 @@ y_max = 3
 y_min = 0.5
 plot(x, y, title, x_label, y_label, plot_x_size, plot_y_size, legend, figname, y_max, y_min)
 
-#Tasso di crescita giornaliero w/ expansion
-ma_days=2
-x = dates
-y = moving_average = ratio_positivi.expanding(min_periods=ma_days).mean()
-title = "Tasso di crescita giornaliero using expansion"
-x_label = "Data"
-y_label = "Tasso di crescita giornaliero: positivi al giorno n+1 / positivi al giorno n, with expansion"
-legend = moving_average.columns.values
-figname = "Tasso di crescita giornaliero with expansion.jpg"
-y_max = 3
-plot(x, y, title, x_label, y_label, plot_x_size, plot_y_size, legend, figname, y_max)
+# #Tasso di crescita giornaliero w/ expansion
+# ma_days=2
+# x = dates
+# y = moving_average = ratio_positivi.expanding(min_periods=ma_days).mean()
+# title = "Tasso di crescita giornaliero using expansion"
+# x_label = "Data"
+# y_label = "Tasso di crescita giornaliero: positivi al giorno n+1 / positivi al giorno n, with expansion"
+# legend = moving_average.columns.values
+# figname = "Tasso di crescita giornaliero with expansion.jpg"
+# y_max = 3
+# plot(x, y, title, x_label, y_label, plot_x_size, plot_y_size, legend, figname, y_max)
 
 # Tasso di crescita giornaliero per regioni
 ma_days=1
