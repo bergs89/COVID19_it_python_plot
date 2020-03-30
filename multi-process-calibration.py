@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 import multiprocessing as mp
 import prediction_sir_model
+import prediction_seir_model
 
 if __name__ == '__main__':
     # Import real data
@@ -15,10 +16,17 @@ if __name__ == '__main__':
     # Plot data
     positivi_misurati = DataFrame.totale_attualmente_positivi
     tempo_misurati = range(0, len(DataFrame.data))
-    # Parameters for calibration
-    N_min, N_max, N_jump, max_error = 360000, 600000, 5000, 0.3
+    # Parameters for calibration SIR Model
+    N_min, N_max, N_jump, max_error = 360000, 2000000, 5000, 0.3
     processes = [mp.Process(target=prediction_sir_model.calibration, args=(DataFrame, N, max_error,)) for N in range(N_min, N_max, N_jump)]
-    # p = processes = mp.Process(target=prediction_sir_model.calibration, args=(DataFrame, 360000, max_error,))
+    for p in processes:
+        p.start()
+    for p in processes:
+        p.join()
+    # SEIR model
+    N_min, N_max, N_jump, max_error = 360000, 750000, 10000, 0.3
+    processes = [mp.Process(target=prediction_seir_model.calibration, args=(DataFrame, N, max_error,)) for N in
+                 range(N_min, N_max, N_jump)]
     for p in processes:
         p.start()
     for p in processes:
