@@ -42,7 +42,7 @@ def calibration(DataFrame, N, max_error, beta_min=0.15, beta_max=0.45, gamma_den
         for gamma_den in np.arange(gamma_den_min, gamma_den_max, 0.1):
             gamma = 1 / gamma_den
             S, I, R, t = SIR_model(I0, R0, N, beta, gamma, t_max)
-            positivi_misurati = DataFrame.totale_attualmente_positivi
+            positivi_misurati = DataFrame.totale_positivi
             guariti_misurati = DataFrame.dimessi_guariti
             error_positivi = (I - positivi_misurati) / positivi_misurati
             error_guariti = (R - guariti_misurati) / guariti_misurati
@@ -59,7 +59,7 @@ def calibration(DataFrame, N, max_error, beta_min=0.15, beta_max=0.45, gamma_den
     I0 = 229
     R0 = 0
     S, I, R, t = SIR_model(I0, R0, N, beta, 1 / gamma_den, t_max=120)
-    positivi_misurati = DataFrame.totale_attualmente_positivi
+    positivi_misurati = DataFrame.totale_positivi
     tempo_misurati = range(0, t_max)
     plt_SIR_model(t, S, I, R, tempo_misurati, positivi_misurati, N, beta, gamma_den, Rknot, err_positivi)
     print("Calcolo al: 100%")
@@ -101,7 +101,7 @@ def plt_SIR_model(t, S, I, R, tempo_misurati, positivi_misurati, N, beta, gamma_
 #     DataFrame_regions = pd.read_csv(file_name_regions)
 #
 #     # Plot data
-#     positivi_misurati = DataFrame.totale_attualmente_positivi
+#     positivi_misurati = DataFrame.totale_positivi
 #     tempo_misurati = range(0, len(DataFrame.data))
 #
 #     # Parameters for calibration

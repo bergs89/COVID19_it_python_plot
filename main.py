@@ -63,7 +63,7 @@ for column in DataFrame:
         legend = column
         figname = str(column+".jpg")
         title = str(column).replace("_"," ")
-        if column == "nuovi_attualmente_positivi":
+        if column == "nuovi_positivi":
             bar(x, y, title, x_label, y_label, plot_x_size, plot_y_size, legend, figname)
         else:
             plot(x, y, title, x_label, y_label, plot_x_size, plot_y_size, legend, figname)
@@ -80,7 +80,7 @@ plot_y_size = 10
 # 4_Guariti diviso nuovi attualmente positivi
 
 x = [DataFrame.data, DataFrame.data, DataFrame.data, DataFrame.data]
-y = [DataFrame.deceduti/DataFrame.totale_casi*100, DataFrame.nuovi_attualmente_positivi, DataFrame.tamponi/DataFrame.totale_attualmente_positivi, DataFrame.dimessi_guariti/DataFrame.nuovi_attualmente_positivi]
+y = [DataFrame.deceduti/DataFrame.totale_casi*100, DataFrame.nuovi_positivi, DataFrame.tamponi/DataFrame.totale_positivi, DataFrame.dimessi_guariti/DataFrame.nuovi_positivi]
 x_label = ["Data", "Data", "Data", "Data"]
 y_label = ["Tasso decessi percentuale", "Casi positivi giornalieri", "Tamponi diviso Tot. attualmente positivi", "Guariti diviso nuovi attualmente positivi"]
 title = ["Tasso decessi percentuale", "Casi positivi giornalieri", "Tamponi diviso Tot. attualmente positivi", "Guariti diviso nuovi attualmente positivi"]
@@ -199,11 +199,11 @@ def analisi_CNS(DataFrame, DataFrame_regions):
         
     for region in regions:
         if region in ["Abruzzo", "Toscana", "Marche", "Umbria", "Lazio", "Molise"]:
-            df_centro[region] = df[df['denominazione_regione'].str.contains(str(region))].nuovi_attualmente_positivi.reset_index().nuovi_attualmente_positivi
+            df_centro[region] = df[df['denominazione_regione'].str.contains(str(region))].nuovi_positivi.reset_index().nuovi_positivi
         if region in ["Basilicata", "Campania", "Puglia", "Calabria", "Sicilia", "Sardegna"]:      
-            df_sud[region]=df_centro[region] = df[df['denominazione_regione'].str.contains(str(region))].nuovi_attualmente_positivi.reset_index().nuovi_attualmente_positivi
+            df_sud[region]=df_centro[region] = df[df['denominazione_regione'].str.contains(str(region))].nuovi_positivi.reset_index().nuovi_positivi
         if region in ["Liguria", "Piemonte", "Valle d'Aosta", "Lombardia", "P.A. Trento", "Friuli Venezia Giulia", "Veneto", "P.A. Bolzano", "Emilia Romagna"]:
-            df_nord[region]=df_centro[region] = df[df['denominazione_regione'].str.contains(str(region))].nuovi_attualmente_positivi.reset_index().nuovi_attualmente_positivi
+            df_nord[region]=df_centro[region] = df[df['denominazione_regione'].str.contains(str(region))].nuovi_positivi.reset_index().nuovi_positivi
  
     centro_nuovi_positivi=pd.DataFrame()
     centro_nuovi_positivi=df_centro.sum(axis=1)-df_nord.sum(axis=1)-df_sud.sum(axis=1)

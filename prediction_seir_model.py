@@ -88,7 +88,7 @@ def calibration(DataFrame, N, max_error, beta_min=0.15, beta_max=0.6, gamma_den_
     E0 = I0 = 229
     R0 = 0
     # Strumenti per calcolo errore
-    positivi_misurati = DataFrame.totale_attualmente_positivi
+    positivi_misurati = DataFrame.totale_positivi
     guariti_misurati = DataFrame.dimessi_guariti
     # Cicli di calibrazione
     for beta in np.arange(beta_min, beta_max, 0.05):
@@ -158,7 +158,7 @@ def plt_SEIR_model(t, S, E, I, R, tempo_misurati, positivi_misurati, N, beta, ga
 #     DataFrame_regions = pd.read_csv(file_name_regions)
 #
 #     # Plot data
-#     positivi_misurati = DataFrame.totale_attualmente_positivi
+#     positivi_misurati = DataFrame.totale_positivi
 #     tempo_misurati = range(0, len(DataFrame.data))
 #
 #     # Parameters for calibration
