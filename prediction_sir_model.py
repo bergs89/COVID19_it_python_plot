@@ -29,7 +29,7 @@ def SIR_model(I0, R0, N, beta, gamma, t_max):
     return S, I, R, t
 
 
-def calibration(DataFrame, N, max_error, beta_min=0.15, beta_max=0.45, gamma_den_min=1, gamma_den_max=14):
+def calibration(DataFrame, N, max_error, beta_min=0.1, beta_max=0.45, gamma_den_min=3.5, gamma_den_max=14):
     # result = pd.DataFrame(columns=['N', 'beta', 'gamma_den', 'R0', 'error_avg'])
     list = []
     t_max = len(DataFrame.data)
@@ -43,17 +43,14 @@ def calibration(DataFrame, N, max_error, beta_min=0.15, beta_max=0.45, gamma_den
             gamma = 1 / gamma_den
             S, I, R, t = SIR_model(I0, R0, N, beta, gamma, t_max)
             positivi_misurati = DataFrame.totale_positivi
-            guariti_misurati = DataFrame.dimessi_guariti
-            error_positivi = (I - positivi_misurati) / positivi_misurati
-            error_guariti = (R - guariti_misurati) / guariti_misurati
+            error_positivi = pow(pow((I - positivi_misurati),2),1/2)/ positivi_misurati
             error_positivi_avg = statistics.mean(abs(error_positivi))
-            error_guariti_avg = statistics.mean(abs(error_guariti))
             if abs(error_positivi_avg) < max_error:
                 # print(N, beta, gamma_den, beta/gamma, error_positivi_avg, error_guariti_avg)
-                list.append([N, beta, gamma_den, beta / gamma, error_positivi_avg, error_guariti_avg])
-    result = pd.DataFrame(list, columns=["N", "beta", "gamms_den", "R0", "error_positivi_avg", "error_guariti_avg"])
+                list.append([N, beta, gamma_den, beta / gamma, error_positivi_avg])
+    result = pd.DataFrame(list, columns=["N", "beta", "gamms_den", "R0", "error_positivi_avg"])
     index_min_error = result.error_positivi_avg.idxmin()
-    N, beta, gamma_den, Rknot, err_positivi, err_guariti = result.iloc[index_min_error]
+    N, beta, gamma_den, Rknot, err_positivi = result.iloc[index_min_error]
     print(result.iloc[index_min_error])
     # Initial conditions for Italy COVID19
     I0 = 229
@@ -113,6 +110,3 @@ def plt_SIR_model(t, S, I, R, tempo_misurati, positivi_misurati, N, beta, gamma_
 #       p.start()
 #     for p in processes:
 #       p.join()
-
-
-

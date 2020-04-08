@@ -76,9 +76,15 @@ def solveSEIRsimple(SEIR_simple_model, population, E0, days0, days1, days2, days
     return X, S, E, I, R  # note these are all arrays
 
 # Example:
+# file_name_it = "https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-andamento-nazionale/dpc-covid19-ita-andamento-nazionale.csv"
+# DataFrame = pd.read_csv(file_name_it)
+# t_max = len(DataFrame.data)
+# positivi_misurati = DataFrame.totale_positivi
+# tempo_misurati = range(0, t_max)
 # X, S, E, I, R = solveSEIRsimple(SEIR_simple_model, population, E0, days0, days1, days2, days3, beta0, beta1, beta2, beta3, betan, gamma, sigma)
+# plt_SEIR_model(X, S, I, E, R, tempo_misurati, positivi_misurati)
 
-def plt_SEIR_model(X, S, I, E, R, tempo_misurati, positivi_misurati):
+def plt_SEIR_model(X, S, I, E, R, tempo_misurati, positivi_misurati, filename):
     fig = plt.figure(dpi=75, figsize=(28,8))
     ax = fig.add_subplot(111)
     ax.fmt_xdata = matplotlib.dates.DateFormatter('%Y-%m-%d')  # higher date precision for cursor display
@@ -88,57 +94,55 @@ def plt_SEIR_model(X, S, I, E, R, tempo_misurati, positivi_misurati):
     ax.plot(tempo_misurati, positivi_misurati, label='positivi')
     ax.legend()
     ax.grid()
-    plt.show()
+    plt.savefig(filename)
+    return
 
-def calibration(DataFrame, max_error, population=60000000, E0 = 229, days0=14, days1=25, days2=34, days3=41, rmin=1, rmax=4, rjump=0.15):
+def calibration(DataFrame, max_error, r0, population=60000000, E0=229, days0=14, days1=25, days2=34, days3=41, rmin=1, rmax=4, rjump=0.025):
     # result = pd.DataFrame(columns=['N', 'beta', 'gamma_den', 'R0', 'error_avg'])
     list = []
     t_max = len(DataFrame.data)
     positivi_misurati = DataFrame.totale_positivi
     tempo_misurati = range(0, t_max)
     # Initial conditions for Italy COVID19
-    for r0 in np.arange(rmin, rmax, rjump):
-        situazione_calcolo = (r0 - rmin) / (rmax - rmin)
+    for r1 in np.arange(rmin, rmax, rjump):
+        situazione_calcolo = (r1 - rmin) / (rmax - rmin)
         print("Calcolo al: " + str(round(situazione_calcolo * 100, 2)) + "%")
-        for r1 in np.arange(rmin, rmax, rjump):
-            for r2 in np.arange(rmin, rmax, rjump):
-                for r3 in np.arange(rmin, rmax, rjump):
-                    # r0 = 4
-                    # r1 = 2.3
-                    # r2 = 1.6
-                    # r3 = 1.285
-                    rn = 1.0
+        for r2 in np.arange(rmin, rmax, rjump):
+            for r3 in np.arange(rmin, rmax, rjump):
+                rn = 1.0
 
-                    timePresymptomatic = 2.5
-                    sigma = 1.0 / (5.2 - timePresymptomatic)
-                    generationTime = 4.6
-                    gamma = 1.0 / (2.0 * (generationTime - 1.0 / sigma))
-                    
-                    beta0 = r0 * gamma
-                    beta1 = r1 * gamma
-                    beta2 = r2 * gamma
-                    beta3 = r3 * gamma
-                    betan = rn * gamma
-                    
-                    X, S, E, I, R = solveSEIRsimple(SEIR_simple_model, population, E0, days0, days1, days2, days3, beta0, beta1,
-                                                    beta2, beta3, betan, gamma, sigma)
-                    error_positivi_avg = np.average((pow(pow((pd.Series(I) - positivi_misurati),2),1/2)/positivi_misurati).fillna(0))
-                    if abs(error_positivi_avg) < max_error:
-                        # print(N, beta, gamma_den, beta/gamma, error_positivi_avg, error_guariti_avg)
-                        list.append([population, beta0, beta1, beta2, beta3, betan, gamma, sigma, error_positivi_avg])
-    result = pd.DataFrame(list, columns=["N", "beta0", "beta1", "beta2", "beta3", "betan", "gamma", "sigma", "error_positivi_avg"])
+                timePresymptomatic = 2.5
+                sigma = 1.0 / (5.2 - timePresymptomatic)
+                generationTime = 4.6
+                gamma = 1.0 / (2.0 * (generationTime - 1.0 / sigma))
+
+                beta0 = r0 * gamma
+                beta1 = r1 * gamma
+                beta2 = r2 * gamma
+                beta3 = r3 * gamma
+                betan = rn * gamma
+
+                X, S, E, I, R = solveSEIRsimple(SEIR_simple_model, population, E0, days0, days1, days2, days3, beta0, beta1,
+                                                beta2, beta3, betan, gamma, sigma)
+                error_positivi_avg = np.average((pow(pow((pd.Series(E) - positivi_misurati),2),1/2)/positivi_misurati).fillna(0))
+                if abs(error_positivi_avg) < max_error:
+                    # print(N, beta, gamma_den, beta/gamma, error_positivi_avg, error_guariti_avg)
+                    list.append([population, beta0, beta1, beta2, beta3, betan, gamma, sigma, error_positivi_avg])
+    result = pd.DataFrame(list, columns=["population", "beta0", "beta1", "beta2", "beta3", "betan", "gamma", "sigma", "error_positivi_avg"])
     index_min_error = result.error_positivi_avg.idxmin()
-    N, beta0, beta1, beta2, beta3, betan, gamma, sigma, err_positivi = result.iloc[index_min_error]
+    population, beta0, beta1, beta2, beta3, betan, gamma, sigma, err_positivi = result.iloc[index_min_error]
     print(result.iloc[index_min_error])
     # Initial conditions for Italy COVID19
     I0 = 229
     X, S, E, I, R = solveSEIRsimple(SEIR_simple_model, population, E0, days0, days1, days2, days3, beta0, beta1, beta2, beta3, betan, gamma, sigma)
-    plt_SEIR_model(X, S, I, E, R, tempo_misurati, positivi_misurati)
+    filename  = str('PredictionSEIR beta0' + str(round(beta0, 5)) + ', beta1' + str(round(beta1, 5)) + ', beta2' + str(round(beta2, 5)) + ', beta3' + str(round(beta3, 5)) + ', betan' + str(round(betan, 5)) + ', error' + str(round(err_positivi_avg, 4)) + '.jpg')
+    plt_SEIR_model(X, S, I, E, R, tempo_misurati, positivi_misurati, filename)
     print("Calcolo al: 100%")
     return result
 
-file_name_it = "https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-andamento-nazionale/dpc-covid19-ita-andamento-nazionale.csv"
-DataFrame = pd.read_csv(file_name_it)
-t_max = len(DataFrame.data)
-max_error = 0.12
-results = calibration(DataFrame, max_error)
+# Example:
+# file_name_it = "https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-andamento-nazionale/dpc-covid19-ita-andamento-nazionale.csv"
+# DataFrame = pd.read_csv(file_name_it)
+# t_max = len(DataFrame.data)
+# max_error = 0.12
+# results = calibration(DataFrame, max_error, r0=4)
