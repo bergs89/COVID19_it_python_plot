@@ -1,4 +1,4 @@
-# Author: Stefano Bergamini
+'# Author: Stefano Bergamini
 # Source: https://github.com/coronafighter/coronaSEIR/blob/master/main_coronaSEIR.py
 
 import pandas as pd
@@ -170,3 +170,4 @@ def plt_SEIR_model(t, S, E, I, R, tempo_misurati, positivi_misurati, N, beta, ga
 #       p.start()
 #     for p in processes:
 #       p.join()
+'

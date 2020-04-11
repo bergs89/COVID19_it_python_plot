@@ -30,6 +30,19 @@ def plot(x, y, title, x_label, y_label, plot_x_size, plot_y_size, legend, fignam
     plt.savefig(figname)
     return
 
+def scatter(x, y, title, x_label, y_label, plot_x_size, plot_y_size, legend, figname, y_max=None, y_min=None):
+    plt.figure(figsize=(plot_x_size, plot_y_size))
+    plt.title(title)
+    plt.xlabel(x_label)
+    plt.ylabel(y_label)
+    plt.xticks(rotation=45)
+    plt.grid()
+    plt.scatter(x, y, marker='o', label=str(legend))
+    plt.legend(loc="upper left", ncol=2, title="Legend", fancybox=True)
+    plt.ylim(ymax=y_max, ymin=y_min)
+    plt.savefig(figname)
+    return
+
 def bar(x, y, title, x_label, y_label, plot_x_size, plot_y_size, legend, figname, y_max=None, y_min=None):
     plt.figure(figsize=(plot_x_size, plot_y_size))
     plt.title(title)
@@ -223,3 +236,12 @@ figname = [str(title[0]+".jpg"), str(title[1]+".jpg"), str(title[2]+".jpg"), str
 for i in range(0,len(x)):
     bar(x[i], y[i], title[i], x_label[i], y_label[i], plot_x_size, plot_y_size, legend[i], figname[i])
 
+
+# Nuovi positivi vs. tamponi giornalieri
+colors=pd.Series(range(len(DataFrame.data)))/max(pd.Series(range(len(DataFrame.data))))
+scatter(DataFrame.tamponi.diff(), DataFrame.nuovi_positivi, title='Nuovi positivi giornalieri vs. Tamponi giornalieri', x_label='Tamponi giornalieri', y_label='Nuovi positivi', plot_x_size=10, plot_y_size=10, legend=' ', figname='Nuovi positivi giornalieri vs. Tamponi giornalieri.jpg')
+# df_tg_vs_np=pd.DataFrame()
+# df_tg_vs_np['tamponi']=DataFrame.tamponi.diff()
+# df_tg_vs_np['nuovi_positivi']=DataFrame.nuovi_positivi
+# df_tg_vs_np['colors']=pd.Series(range(len(DataFrame.data)))/max(pd.Series(range(len(DataFrame.data))))
+# # df_tg_vs_np.plot.scatter(x='tamponi', y='nuovi_positivi', c='colors')
