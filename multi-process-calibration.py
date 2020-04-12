@@ -1,5 +1,6 @@
-# Author: Stefano Bergamini
-
+'''
+Author: Stefano Bergamini
+'''
 import pandas as pd
 import numpy as np
 import multiprocessing as mp

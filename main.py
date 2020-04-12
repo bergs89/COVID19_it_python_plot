@@ -30,6 +30,21 @@ def plot(x, y, title, x_label, y_label, plot_x_size, plot_y_size, legend, fignam
     plt.savefig(figname)
     return
 
+def plot_pred(x, y, x_pred, y_pred, x_pred_exp, y_pred_exp, title, x_label, y_label, plot_x_size, plot_y_size, legend, figname, y_max=None, y_min=None):
+    plt.figure(figsize=(plot_x_size, plot_y_size))
+    plt.title(title)
+    plt.xlabel(x_label)
+    plt.ylabel(y_label)
+    plt.xticks(rotation=45)
+    plt.grid()
+    plt.bar(x, y, label=str(legend))
+    plt.legend(loc="upper left", ncol=2, title="Legend", fancybox=True)
+    plt.ylim(ymax=y_max, ymin=y_min)
+    plt.plot(x_pred, y_pred, color='r')
+    plt.plot(x_pred_exp, y_pred_exp, color='r')
+    plt.savefig(figname)
+    return
+
 def scatter(x, y, title, x_label, y_label, plot_x_size, plot_y_size, legend, figname, y_max=None, y_min=None):
     plt.figure(figsize=(plot_x_size, plot_y_size))
     plt.title(title)
@@ -77,7 +92,30 @@ for column in DataFrame:
         figname = str(column+".jpg")
         title = str(column).replace("_"," ")
         if column == "nuovi_positivi":
-            bar(x, y, title, x_label, y_label, plot_x_size, plot_y_size, legend, figname)
+            # Linear regression after peak
+            from sklearn.linear_model import LinearRegression
+            y_l = np.array(DataFrame.nuovi_positivi[31:]).reshape(-1, 1)
+            x_l = np.array(DataFrame.index[31:]).reshape(-1, 1)
+            model = LinearRegression().fit(x_l, y_l)
+            r_sq = model.score(x_l, y_l)
+            # Use prediction to compute the zero
+            x_pred_y0 = - model.intercept_ / model.coef_ - (DataFrame.index[-1] - DataFrame.index[26])
+            x_pred = pd.Series(np.array(range(26, int(x_pred_y0)+26)))
+            y_pred = int(model.coef_) * x_pred + int(model.intercept_)
+            from scipy.optimize import curve_fit
+            x_exp = np.array(range(len(DataFrame.data[:26+1])))
+            y_exp = np.array(DataFrame.nuovi_positivi[:26+1])
+            def expon(x, a, b, c, d):
+                return a * np.exp(b * x + c) + d
+            init_vals = [1, 1, 1, 1]
+            best_vals, covar = curve_fit(expon, x_exp, y_exp, p0=init_vals)
+            y_pred_exp = best_vals[0] * np.exp(best_vals[1] * x_exp + best_vals[2]) + best_vals[3]
+            poly_fit = np.polyfit(x_exp, y_exp, 2)
+            y_pred_exp = np.exp(poly_fit[1]) * np.exp(poly_fit[0] * x_exp)
+            x = pd.Series(range(len(DataFrame.data)))
+            plot_pred(x, y, x_pred, y_pred, x_exp, y_pred_exp, title, x_label, y_label, plot_x_size, plot_y_size, legend, figname)
+            delta = np.array(y[26:]) - np.array(y_pred[:len(y[26:])])
+            plot(pd.Series(range(26,len(delta)+26)), delta, 'Variazione intorno regressione lineare (picchi generalmente equispaziati di 7 giorni dovuti a weekends)', 'Data (dal picco avuto il 26esimo giorno)', 'Persone - sqrt((Misurati - Retta di Regaressione)^2)', plot_x_size=10, plot_y_size=10, legend='', figname='Variazione intorno regressione lineare.jpg')
         else:
             plot(x, y, title, x_label, y_label, plot_x_size, plot_y_size, legend, figname)
         continue
@@ -238,10 +276,7 @@ for i in range(0,len(x)):
 
 
 # Nuovi positivi vs. tamponi giornalieri
-colors=pd.Series(range(len(DataFrame.data)))/max(pd.Series(range(len(DataFrame.data))))
 scatter(DataFrame.tamponi.diff(), DataFrame.nuovi_positivi, title='Nuovi positivi giornalieri vs. Tamponi giornalieri', x_label='Tamponi giornalieri', y_label='Nuovi positivi', plot_x_size=10, plot_y_size=10, legend=' ', figname='Nuovi positivi giornalieri vs. Tamponi giornalieri.jpg')
-# df_tg_vs_np=pd.DataFrame()
-# df_tg_vs_np['tamponi']=DataFrame.tamponi.diff()
-# df_tg_vs_np['nuovi_positivi']=DataFrame.nuovi_positivi
-# df_tg_vs_np['colors']=pd.Series(range(len(DataFrame.data)))/max(pd.Series(range(len(DataFrame.data))))
-# # df_tg_vs_np.plot.scatter(x='tamponi', y='nuovi_positivi', c='colors')
+
+
+
