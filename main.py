@@ -94,8 +94,8 @@ for column in DataFrame:
         if column == "nuovi_positivi":
             # Linear regression after peak
             from sklearn.linear_model import LinearRegression
-            y_l = np.array(DataFrame.nuovi_positivi[31:]).reshape(-1, 1)
-            x_l = np.array(DataFrame.index[31:]).reshape(-1, 1)
+            y_l = np.array(DataFrame.nuovi_positivi[26:]).reshape(-1, 1)
+            x_l = np.array(DataFrame.index[26:]).reshape(-1, 1)
             model = LinearRegression().fit(x_l, y_l)
             r_sq = model.score(x_l, y_l)
             # Use prediction to compute the zero
@@ -107,11 +107,9 @@ for column in DataFrame:
             y_exp = np.array(DataFrame.nuovi_positivi[:26+1])
             def expon(x, a, b, c, d):
                 return a * np.exp(b * x + c) + d
-            init_vals = [1, 1, 1, 1]
+            init_vals = [0.1, 0.1, 0.1, 0.1]
             best_vals, covar = curve_fit(expon, x_exp, y_exp, p0=init_vals)
             y_pred_exp = best_vals[0] * np.exp(best_vals[1] * x_exp + best_vals[2]) + best_vals[3]
-            poly_fit = np.polyfit(x_exp, y_exp, 2)
-            y_pred_exp = np.exp(poly_fit[1]) * np.exp(poly_fit[0] * x_exp)
             x = pd.Series(range(len(DataFrame.data)))
             plot_pred(x, y, x_pred, y_pred, x_exp, y_pred_exp, title, x_label, y_label, plot_x_size, plot_y_size, legend, figname)
             delta = np.array(y[26:]) - np.array(y_pred[:len(y[26:])])
