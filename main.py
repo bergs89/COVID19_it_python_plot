@@ -27,6 +27,8 @@ def plot(x, y, title, x_label, y_label, plot_x_size, plot_y_size, legend, fignam
     plt.plot(x, y, marker='o', label=str(legend))
     plt.legend(loc="upper left", ncol=2, title="Legend", fancybox=True)
     plt.ylim(ymax=y_max, ymin=y_min)
+    plt.annotate('[Data source: https://github.com/pcm-dpc/COVID-19]', (0, 0), (-140, -20), fontsize=6,
+                 xycoords='axes fraction', textcoords='offset points', va='top')
     plt.savefig(figname)
     return
 
@@ -42,6 +44,8 @@ def plot_pred(x, y, x_pred, y_pred, x_pred_exp, y_pred_exp, title, x_label, y_la
     plt.ylim(ymax=y_max, ymin=y_min)
     plt.plot(x_pred, y_pred, color='r')
     plt.plot(x_pred_exp, y_pred_exp, color='r')
+    plt.annotate('[Data source: https://github.com/pcm-dpc/COVID-19]', (0, 0), (-140, -20), fontsize=6,
+                 xycoords='axes fraction', textcoords='offset points', va='top')
     plt.savefig(figname)
     return
 
@@ -55,6 +59,8 @@ def scatter(x, y, title, x_label, y_label, plot_x_size, plot_y_size, legend, fig
     plt.scatter(x, y, marker='o', label=str(legend))
     plt.legend(loc="upper left", ncol=2, title="Legend", fancybox=True)
     plt.ylim(ymax=y_max, ymin=y_min)
+    plt.annotate('[Data source: https://github.com/pcm-dpc/COVID-19]', (0, 0), (-140, -20), fontsize=6,
+                 xycoords='axes fraction', textcoords='offset points', va='top')
     plt.savefig(figname)
     return
 
@@ -68,6 +74,8 @@ def bar(x, y, title, x_label, y_label, plot_x_size, plot_y_size, legend, figname
     plt.bar(x, y, label=str(legend))
     plt.legend(loc="upper left", ncol=2, title="Legend", fancybox=True)
     plt.ylim(ymax=y_max, ymin=y_min)
+    plt.annotate('[Data source: https://github.com/pcm-dpc/COVID-19]', (0, 0), (-140, -20), fontsize=6,
+                 xycoords='axes fraction', textcoords='offset points', va='top')
     plt.savefig(figname)
     return
 
