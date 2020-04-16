@@ -16,13 +16,13 @@ daysTotal = 120  # total days to model
 days0 = 14  # Germany:57 France: Italy:62? Spain:68? 'all'butChina:65? days before lockdown measures - you might need to adjust this according to output "lockdown measures start:"
 days1 = 25
 days2 = 34
-days3 = 41
+days3 = 42
 # r0 = 2.9  # https://en.wikipedia.org/wiki/Basic_reproduction_number
 r0 = 4
 r1 = 2.3
 r2 = 1.6
 r3 = 1.285
-rn = 1.0  # reproduction number after quarantine measures - https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3539694
+rn = 1.15  # reproduction number after quarantine measures - https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3539694
           # it seems likely that measures will become more restrictive if r1 is not small enough
 
 timePresymptomatic = 2.5  # almost half infections take place before symptom onset (Drosten) https://www.medrxiv.org/content/10.1101/2020.03.08.20032946v1.full.pdf
@@ -75,15 +75,6 @@ def solveSEIRsimple(SEIR_simple_model, population, E0, days0, days1, days2, days
     S, E, I, R = y_data_var.T  # transpose and unpack
     return X, S, E, I, R  # note these are all arrays
 
-# Example:
-# file_name_it = "https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-andamento-nazionale/dpc-covid19-ita-andamento-nazionale.csv"
-# DataFrame = pd.read_csv(file_name_it)
-# t_max = len(DataFrame.data)
-# positivi_misurati = DataFrame.totale_positivi
-# tempo_misurati = range(0, t_max)
-# X, S, E, I, R = solveSEIRsimple(SEIR_simple_model, population, E0, days0, days1, days2, days3, beta0, beta1, beta2, beta3, betan, gamma, sigma)
-# plt_SEIR_model(X, S, I, E, R, tempo_misurati, positivi_misurati)
-
 def plt_SEIR_model(X, S, I, E, R, tempo_misurati, positivi_misurati, filename):
     fig = plt.figure(dpi=75, figsize=(28,8))
     ax = fig.add_subplot(111)
@@ -96,6 +87,19 @@ def plt_SEIR_model(X, S, I, E, R, tempo_misurati, positivi_misurati, filename):
     ax.grid()
     plt.savefig(filename)
     return
+
+
+# Example:
+file_name_it = "https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-andamento-nazionale/dpc-covid19-ita-andamento-nazionale.csv"
+DataFrame = pd.read_csv(file_name_it)
+t_max = len(DataFrame.data)
+positivi_misurati = DataFrame.totale_positivi
+tempo_misurati = range(0, t_max)
+X, S, E, I, R = solveSEIRsimple(SEIR_simple_model, population, E0, days0, days1, days2, days3, beta0, beta1, beta2, beta3, betan, gamma, sigma)
+filename =  str('PredictionSEIR_manual')
+plt_SEIR_model(X, S, I, E, R, tempo_misurati, positivi_misurati, filename)
+
+
 
 def calibration(DataFrame, max_error, r0, population=60000000, E0=229, days0=14, days1=25, days2=34, days3=41, rmin=1, rmax=4, rjump=0.025):
     # result = pd.DataFrame(columns=['N', 'beta', 'gamma_den', 'R0', 'error_avg'])
