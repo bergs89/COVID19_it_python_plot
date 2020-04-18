@@ -4,6 +4,9 @@ Created on Sat Mar 21 09:48:40 2020
 
 @author: bergs
 """
+import json
+import urllib
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
@@ -11,6 +14,7 @@ import imageio
 import os
 
 # from scipy import stats
+from scipy.spatial.tests.test_qhull import points
 
 file_name_it = "https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-andamento-nazionale/dpc-covid19-ita-andamento-nazionale.csv"
 file_name_regions = "https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-regioni/dpc-covid19-ita-regioni.csv"
@@ -77,6 +81,46 @@ def bar(x, y, title, x_label, y_label, plot_x_size, plot_y_size, legend, figname
     plt.annotate('[Data source: https://github.com/pcm-dpc/COVID-19]', (0, 0), (-140, -20), fontsize=6,
                  xycoords='axes fraction', textcoords='offset points', va='top')
     plt.savefig(figname)
+    return
+
+def plot_italy_map(df_regioni, z='totale_casi', figname='test.html'):
+    import plotly.express as px
+    # Read the geojson data with Italy's regional borders [enter image description here][2]from github
+    repo_url = 'https://gist.githubusercontent.com/datajournalism-it/48e29e7c87dca7eb1d29/raw/2636aeef92ba0770a073424853f37690064eb0ea/regioni.geojson'
+    italy_regions_geo = requests.get(repo_url).json()
+
+    regions = ['Piemonte', 'Trentino-Alto Adige', 'Lombardia', 'Puglia', 'Basilicata',
+               'Friuli Venezia Giulia', 'Liguria', "Valle d'Aosta", 'Emilia-Romagna',
+               'Molise', 'Lazio', 'Veneto', 'Sardegna', 'Sicilia', 'Abruzzo',
+               'Calabria', 'Toscana', 'Umbria', 'Campania', 'Marche']
+
+    # Create a dataframe with the region names
+    df = df_regioni.groupby('denominazione_regione')[z].max().reset_index()
+    # Setup colorscale for the map
+    colors = [[0.0, "rgb(49,54,149)"],
+              [0.1111111111111111, "rgb(69,117,180)"],
+              [0.2222222222222222, "rgb(116,173,209)"],
+              [0.3333333333333333, "rgb(171,217,233)"],
+              [0.4444444444444444, "rgb(224,243,248)"],
+              [0.5555555555555556, "rgb(254,224,144)"],
+              [0.6666666666666666, "rgb(253,174,97)"],
+              [0.7777777777777778, "rgb(244,109,67)"],
+              [0.8888888888888888, "rgb(215,48,39)"],
+              [1.0, "rgb(165,0,38)"]]
+    # Choropleth representing the length of region names
+    fig = px.choropleth(data_frame=df,
+                        geojson=italy_regions_geo,
+                        locations='denominazione_regione',  # name of dataframe column
+                        featureidkey='properties.NOME_REG',
+                        # path to field in GeoJSON feature object with which to match the values passed in to locations
+                        color=z,
+                        color_continuous_scale=colors,
+                        scope="europe",
+                        )
+    fig.update_geos(showcountries=False, showcoastlines=False, showland=False, fitbounds="locations")
+    fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
+    fig.show()
+    fig.write_html(figname, auto_open=True)
     return
 
 # Plot nazionali
@@ -284,5 +328,8 @@ for i in range(0,len(x)):
 # Nuovi positivi vs. tamponi giornalieri
 scatter(DataFrame.tamponi.diff(), DataFrame.nuovi_positivi, title='Nuovi positivi giornalieri vs. Tamponi giornalieri', x_label='Tamponi giornalieri', y_label='Nuovi positivi', plot_x_size=10, plot_y_size=10, legend=' ', figname='Nuovi positivi giornalieri vs. Tamponi giornalieri.jpg')
 
-
-
+# Italian map picture
+df_regioni=DataFrame_regions
+plot_italy_map(df_regioni, z ='totale_casi', figname='italian_map_total_cases.html')
+plot_italy_map(df_regioni, z ='totale_positivi', figname='italian_map_totale_positives.html')
+# plot_italy_map(df_regioni, z ='nuovi_positivi', figname='italian_map_new_positives.html')
