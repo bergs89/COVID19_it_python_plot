@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import imageio
 import os
+import requests
 
 # from scipy import stats
 from scipy.spatial.tests.test_qhull import points
@@ -141,7 +142,7 @@ for column in DataFrame:
         x_label = "Data"
         y_label = "Persone"
         legend = column
-        figname = str(column+".jpg")
+        figname = 'Pictures'+str(column+".jpg")
         title = str(column).replace("_"," ")
         if column == "nuovi_positivi":
             # Linear regression after peak
@@ -330,6 +331,6 @@ scatter(DataFrame.tamponi.diff(), DataFrame.nuovi_positivi, title='Nuovi positiv
 
 # Italian map picture
 df_regioni=DataFrame_regions
-plot_italy_map(df_regioni, z ='totale_casi', figname='italian_map_total_cases.html')
-plot_italy_map(df_regioni, z ='totale_positivi', figname='italian_map_totale_positives.html')
-# plot_italy_map(df_regioni, z ='nuovi_positivi', figname='italian_map_new_positives.html')
+plot_italy_map(df_regioni, z ='totale_casi', figname='docs\italian_map_total_cases.html')
+plot_italy_map(df_regioni, z ='totale_positivi', figname='docs\italian_map_totale_positives.html')
+plot_italy_map(df_regioni, z ='nuovi_positivi', figname='docs\italian_map_new_positives.html')
