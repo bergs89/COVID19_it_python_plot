@@ -179,11 +179,11 @@ for column in DataFrame:
             x = pd.Series(range(len(DataFrame.data)))
             plot_pred(x, y, x_pred, y_pred, x_exp, y_pred_exp, title, x_label, y_label, plot_x_size, plot_y_size,
                       legend, figname)
-            delta = np.array(y[26:]) - np.array(y_pred[:len(y[26:])])
-            plot(pd.Series(range(26, len(delta) + 26)), delta,
-                 'Variazione intorno regressione lineare (picchi generalmente equispaziati di 7 giorni dovuti a weekends)',
-                 'Data (dal picco avuto il 26esimo giorno)', 'Persone - sqrt((Misurati - Retta di Regaressione)^2)',
-                 plot_x_size=10, plot_y_size=10, legend='', figname='Variazione intorno regressione lineare.jpg')
+            # delta = np.array(y[26:]) - np.array(y_pred[:len(y[26:])])
+            # plot(pd.Series(range(26, len(delta) + 26)), delta,
+            #      'Variazione intorno regressione lineare (picchi generalmente equispaziati di 7 giorni dovuti a weekends)',
+            #      'Data (dal picco avuto il 26esimo giorno)', 'Persone - sqrt((Misurati - Retta di Regaressione)^2)',
+            #      plot_x_size=10, plot_y_size=10, legend='', figname='Variazione intorno regressione lineare.jpg')
         else:
             plot(x, y, title, x_label, y_label, plot_x_size, plot_y_size, legend, figname)
         continue
